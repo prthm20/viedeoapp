@@ -1,16 +1,17 @@
 import dotenv from "dotenv"
 //require("dotenv").config({path:"./"});
-import connectDB from "../db/index.js";
+import connectDB from "./db/index.js";
+import { app } from "./app.js";
 
 dotenv.configDotenv({path:"./env"})
 
-connectDB().then(
-  ()=>{app.listen(process.env.PORT||3000,()=>{
-    console.log("Server is running")
-  })}
-).catch(
+connectDB().then(()=>{
+     app.listen(process.env.PORT,()=>{
+     console.log("Server is running")
+    })
+})
+.catch(
 (err)=>{
-
-    console.log("error")
+      console.log("error")
 }
 )
