@@ -5,7 +5,7 @@ import bcrypt from"bcrypt";
 
 const userSchema= new Schema({
     username:{
-         type:String,
+         type: String,
          required:true,
          unique:true,
          lowercase:true,
@@ -14,11 +14,10 @@ const userSchema= new Schema({
 
     },
     email:{
-         type:String,
+         type: String,
          required:true,
          unique:true,
          lowercase:true,
-         index:true,
          trim:true,
     },
     fullname:{
@@ -28,13 +27,16 @@ const userSchema= new Schema({
          trim:true,
     },
     avatar:{
-         type:String,//use cloudinary
+         type: String,//use cloudinary
          required:true,
-    },
-    coverImg:{
-         type:String,//use cloudinary
          
     },
+    coverImage:{
+         type: String,//use cloudinary
+         required:false,
+         
+    },
+
     WatchHistory:[
         {type:Schema.Types.ObjectId,
          ref:"Viedeo"}

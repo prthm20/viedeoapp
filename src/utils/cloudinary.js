@@ -1,29 +1,49 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from"fs";
+import fs from "fs";
+import path from "path";
 
-import {v2 as cloudinary} from 'cloudinary';
-import { response } from "express";
-          
-cloudinary.config({ 
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-  api_key:process.env.COUDINARY_API_KEY, 
-  api_secret:process.env.CLOUDINARY_API_SECRET, 
+cloudinary.config({
+  cloud_name: "dpsljmkbk",
+  api_key: 938486665652181,
+  api_secret: "0tf0oA_khsS6XJgq-6iOUY9bI38",
 });
 
-const UploadOnCloudinary =async(localFilePath)=>{
+const UploadOnCloudinary = async (localFilePath) => {
   try {
-    if(!localFilePath) return null;
-   const response =await cloudinary.uploader.upload(localFilePath,{resource_type:"auto"})
-    //file has bee uploaded success fully
-    console.log("file is uploaded on cloudinary",response.url);
-    return response;
+    if (!localFilePath) return null;
+
+    console.log("File Path to Upload:", localFilePath);
+
+    const response = await cloudinary.uploader.upload(localFilePath, {
+      resource_type: "auto",
+    });
+
+    console.log("Cloudinary Response:", response);
+
+    const cloudinaryUrl =response;
+    if (!cloudinaryUrl) {
+      console.error("Cloudinary URL not found in the response");
+      return null;
+    }
+
+    console.log("File Uploaded to Cloudinary:", cloudinaryUrl);
+
+    const sanitizedFilePath = path.join(localFilePath);
+
+    fs.unlinkSync(sanitizedFilePath);
+    console.log("File Unlinked Successfully");
+
+    return cloudinaryUrl; // Return the Cloudinary URL instead of the entire response
   } catch (error) {
-    fs.unlinkSync(localFilePath);//removes the locall saved temporary file as the operartion got failed
+    console.error("Error uploading file to Cloudinary:", error.message);
+
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+      console.log("Failed Operation: File Unlinked");
+    }
+
     return null;
-    
   }
-} 
+};
 
-
-
-export {UploadOnCloudinary};
+export { UploadOnCloudinary };
