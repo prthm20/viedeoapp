@@ -32,6 +32,7 @@ const generatAccessAndRefreshTokens= async(userId)=>{
   }
 
 }
+
 const registerUser=asyncHandler(async(req,res)=>{
        //get user details  from frontend
        //validation-not empty
@@ -205,4 +206,39 @@ const logoutuser=asyncHandler(async(req,res)=>{
     
 })
 
-export {registerUser,loginUser,logoutuser};
+const refreshAccessToken=asyncHandler(async(req,res)=>{
+  const incomingrefreshtoken=req.cookies.refreshtoken || req.body.refreshtoken;
+  if(!incomingrefreshtoken){
+    throw new ApiError(400,"Unauthorized request");
+  }
+  try {
+    const decodedToken =jwt.verify(incomingrefreshtoken,process.env.REFRESH_TOKEN_SECRET)
+    const user=await User.findById(decodedToken._id);
+    if(!user){
+      throw new ApiError(400,"invalid refreshtoken");
+    }
+    if(incomingrefreshtoken!==user?.refreshtoken){
+      
+      throw new ApiError(400,"Refresh token is expired or used");
+    }
+    const options={
+      httpOnly:true,
+      secure:true,
+    }
+    const{accessToken,newrefreshtoken} =await generatAccessAndRefreshTokens(user._id);
+    return res
+    .status(200)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refreshtoken",newrefreshtoken,options) 
+    .json(
+      new ApiResponse(
+        200,
+        {accessToken,refreshtoken:newrefreshtoken},
+        "accessToken refreshed"
+      )
+    ) 
+  } catch (error) {
+    throw new ApiError(400,error?.message||"invalid refreshtoken")
+  }
+})
+export {registerUser,loginUser,logoutuser,refreshAccessToken};
