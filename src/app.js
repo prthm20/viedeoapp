@@ -7,16 +7,17 @@ const app=express();
 import bodyParser from "body-parser";
 
 
+
 app.use(cors({
     origin:process.env.CORS_ORIGIN,
     credentials:true
 }));
-app.use(express.static('public'));
 app.use(express.urlencoded({extended:true}));
 app.use(express.json({}));
 app.use(cookieParser())
 
 //routes import
+app.use(express.static('public'));
 import {router} from "./routes/user.routes.js"
 //routes declaration
 app.use("/api/v1/users",router)
