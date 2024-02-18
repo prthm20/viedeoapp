@@ -311,5 +311,83 @@ const updateuseravatar=asyncHandler(async(req,res)=>{
     new ApiResponse(200,user,"avatar updated")
   )
 })
+//make a utility function to delete old avatar image
+const getUserchannelprofile=asyncHandler(async(req,res)=>{
+  const username=req.params
+  
+  if(!username){
+    throw new ApiError(400,"username is missing")
+  }
+ const channel=  await User.aggregate([
+  {
+    $match:{
+    username:username
+    }
+},
+  {
+    $lookup:{
+      from:"subscriptions",
+      localField:"_id",
+      foreignField:"channel",
+      as:"subscribers"
 
-export {registerUser,loginUser,logoutuser,refreshAccessToken,changecurrentpassword,getCurrentUser,updateuseravatar};
+
+    }
+  },
+  {
+    $lookup:{
+      from:"subscriptions",
+      localField:"_id",
+      foreignField:"subscriber",
+      as:"subscribedTo"
+
+  }},
+  {
+    $addFields:{
+          subscribercount:{
+            $size:"$subscribers",
+          } ,
+
+    channelssubscribedto:{
+          $size:"$subscribedTo"
+     
+        },
+         
+    isSubscribedto:{
+      $cond:{
+        if:{$in:[req?.user._id,"$subscribers.subscriber"]},
+        then:true,
+        else:false
+      }
+
+    }
+    },
+
+   $project:{
+      fullname:1,
+      username:1,
+      email:1,
+      subscribercount:1,
+      isSubscribedto:1,
+      channelssubscribedto:1,
+      avatar:1,
+
+
+   }
+  }
+
+])
+if(!channel?.length){
+  throw new ApiError(400,"channel does not exist")
+}
+
+return res
+.status(200)
+.json(
+  new ApiResponse(200,channel[0],"User channel fetched succesfully")
+)
+})
+
+
+
+export {registerUser,loginUser,logoutuser,refreshAccessToken,changecurrentpassword,getCurrentUser,updateuseravatar,getUserchannelprofile};
