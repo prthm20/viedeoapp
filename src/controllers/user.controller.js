@@ -8,6 +8,8 @@ import jwt from "jsonwebtoken";
 import path from "path"
 import mongoose from "mongoose";
 import { error } from "console";
+import { runInNewContext } from "vm";
+import { json } from "body-parser";
 
 const generatAccessAndRefreshTokens= async(userId)=>{
   try {
@@ -241,4 +243,73 @@ const refreshAccessToken=asyncHandler(async(req,res)=>{
     throw new ApiError(400,error?.message||"invalid refreshtoken")
   }
 })
-export {registerUser,loginUser,logoutuser,refreshAccessToken};
+
+const changecurrentpassword =asyncHandler(async(req,res)=>{
+  const{oldpassword,newpassword}=req.body;
+  const user=await User.findById(req.user._id);
+  const ispasswordcorrect=await isPasswordcorrect(oldpassword);
+  user.password=newpassword;
+  await user.save({validateBeforeSave:false})
+  return res
+  .status(200)
+  .json(new ApiResponse(200,{},"Password changed succesfully"))
+})
+
+const getCurrentUser=asyncHandler(async(req,res)=>{
+return res
+.status(200)
+.json(new ApiResponse(200,req.user,"current user fetched successfully"))
+
+})
+
+const updateAccountdetails=asyncHandler(async(req,res)=>{
+  const{fullname,email}=req.body
+
+  if(!fullname||!email){
+  throw new ApiError(400,"All fields are required")
+  }
+
+  const user=await User.findByIdAndUpdate(req.user._id,
+    {
+      $set :{
+      fullname,
+      email
+            }
+   },
+   { 
+    new:true
+   }
+    ).select("-password")
+
+  
+    return res
+    .status(200),
+    json(
+      new ApiResponse(200,user,"Account details updated succesfully")
+    )
+
+ 
+})
+
+const updateuseravatar=asyncHandler(async(req,res)=>{
+  const avatarlocalpath=req.file?.path;
+  if(!avatarlocalpath){
+   throw new  ApiError(400,"Avatar file is missing")
+  }
+ const avatar=await UploadOnCloudinary(avatarlocalpath);
+ if(!avatar.url){
+  throw new ApiError(400,"error while uploading on avatar");
+ }
+ const user=await User.findByIdAndUpdate(req.user._id,
+  {set:{
+    avatar:avatar.url
+  }},{new:true}).select("-password")
+
+  return res
+  .status(200)
+  .json(
+    new ApiResponse(200,user,"avatar updated")
+  )
+})
+
+export {registerUser,loginUser,logoutuser,refreshAccessToken,changecurrentpassword,getCurrentUser,updateuseravatar};
