@@ -9,7 +9,7 @@ import path from "path";
 import mongoose from "mongoose";
 import { error } from "console";
 import { runInNewContext } from "vm";
-import { json } from "body-parser";
+import  json from "body-parser";
 
 const generatAccessAndRefreshTokens = async (userId) => {
   try {
@@ -255,7 +255,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changecurrentpassword = asyncHandler(async (req, res) => {
   const { oldpassword, newpassword } = req.body;
   const user = await User.findById(req.user._id);
-  const ispasswordcorrect = await isPasswordcorrect(oldpassword);
+  const ispasswordcorrect = await user.isPasswordcorrect(oldpassword);
+  if(!ispasswordcorrect){
+    throw new ApiError(400,"password is incorrect")
+  }
   user.password = newpassword;
   await user.save({ validateBeforeSave: false });
   return res
