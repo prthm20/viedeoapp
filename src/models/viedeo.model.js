@@ -8,7 +8,7 @@ const viedeoSchema=new Schema({
     },
     thumbnail:{
         type:String,//cloudinary url
-        required:true,
+        required:false,
     },
     title:{
         type:String,
@@ -28,7 +28,7 @@ const viedeoSchema=new Schema({
     },
     isPublished:{
         type:Boolean,
-        default:true,
+        default:false
     },
     Owner:{
        type:Schema.Types.ObjectId,
@@ -39,4 +39,4 @@ const viedeoSchema=new Schema({
 
 viedeoSchema.plugin(mongooseAggregatePaginate);
 
-export const Viedeo=mongoose.model({Viedeo,viedeoSchema});
+export const Viedeo =mongoose.model("Viedeo",viedeoSchema);

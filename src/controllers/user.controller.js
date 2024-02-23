@@ -112,7 +112,7 @@ const registerUser = asyncHandler(async (req, res) => {
   // const coverImageurl=coverImage.url;
   const user = await User.create({
     fullname,
-    avatar: avatarurl,
+    avatar: avatarurl||"",
     coverImage: "",
     email,
     password,
@@ -293,11 +293,11 @@ const updateAccountdetails = asyncHandler(async (req, res) => {
   ).select("-password");
 
   return (
-    res.status(200),
-    json(new ApiResponse(200, user, "Account details updated succesfully"))
+    res.status(200)
+    .json(new ApiResponse(200, user, "Account details updated succesfully"))
   );
 });
-
+//Not working properly
 const updateuseravatar = asyncHandler(async (req, res) => {
   const avatarlocalpath = req.file?.path;
   if (!avatarlocalpath) {
@@ -311,7 +311,7 @@ const updateuseravatar = asyncHandler(async (req, res) => {
     req.user._id,
     {
       set: {
-        avatar: avatar.url,
+        avatar:avatar.url,
       },
     },
     { new: true }
