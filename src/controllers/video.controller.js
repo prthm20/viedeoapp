@@ -29,6 +29,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
           description,
           viedeoFile:viedeotar.url,
           duration:viedeotar.duration,
+          owner:req.user._id,
 
     })
     console.log(user);

@@ -29,7 +29,7 @@ router.route("/viedeos/:viedeoid").delete(deleteVideo)
 //tweet.controller.js
 router.route("/tweet").post(verifyJwt,createTweet);
 router.route("/usertweet/:userid").get(verifyJwt,getUserTweets);
-router.route("/updatetweet/:tweetid").put(verifyJwt,updateTweet);
+router.route("/updatetweet/:tweetid").put(verifyJwt, updateTweet);
 router.route("/deletetweet/:tweetid").delete(deleteTweet);
 
 
